@@ -157,13 +157,13 @@ class DysonFan(DysonIREntity, FanEntity):
             return
 
         try:
-            # Call broadlink service to send IR code
+            # Call remote service to send IR code
             await self.hass.services.async_call(
-                "broadlink",
-                "send",
+                "remote",
+                "send_command",
                 {
-                    "device": self._blaster_entity,
-                    "command": ir_code,
+                    "entity_id": self._blaster_entity,
+                    "command": [ir_code],
                 },
             )
             _LOGGER.debug(f"Sent IR code for {code_key}")

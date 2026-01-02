@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers import device_registry as dr, entity_registry as er
+from homeassistant.helpers import device_registry as dr, entity_registry as er, selector
 
 from .const import DEVICE_TYPES, DOMAIN, IR_CODE_HEAT_OFF, IR_CODE_HEAT_ON, IR_CODE_OSCILLATE, IR_CODE_POWER_OFF, IR_CODE_POWER_ON, IR_CODE_SPEED_DOWN, IR_CODE_SPEED_UP
 
@@ -36,7 +36,9 @@ class DysonIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         schema = vol.Schema({
             vol.Required("name", default="Dyson Fan"): str,
             vol.Required("device_type", default="AM09"): vol.In(DEVICE_TYPES),
-            vol.Required("ir_blaster_entity"): str,
+            vol.Required("ir_blaster_entity"): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="remote")
+            ),
         })
 
         return self.async_show_form(step_id="device", data_schema=schema)
