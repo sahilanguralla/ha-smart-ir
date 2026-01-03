@@ -4,6 +4,9 @@ version = "1.1.1"
 version_files = [
     "custom_components/dyson_ir/manifest.json:version"
 ]
+scopes = [
+    "dyson_ir"
+]
 tag_format = "$version"
 
 [tool.ruff]

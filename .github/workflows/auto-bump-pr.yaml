@@ -1,0 +1,52 @@
+name: Auto Bump Version in PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+
+jobs:
+  bump-version:
+    if: "!startsWith(github.event.head_commit.message, 'ci: bump version')"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Commitizen
+        run: pip install commitizen
+
+      - name: Configure Git User
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Check for Version Bump
+        id: check_bump
+        run: |
+          # Check if a bump is needed based on commits in this PR
+          # We compare against the base branch (main)
+          cz bump --dry-run --yes --increment-mode exact
+        continue-on-error: true
+
+      - name: Perform Bump and Commit
+        if: steps.check_bump.outcome == 'success'
+        run: |
+          # Perform the actual bump, modifying files
+          cz bump --yes --files-only
+
+          # Find all manifest.json files in custom_components and add them
+          find custom_components -name "manifest.json" -type f | xargs git add
+          git add pyproject.toml
+          git commit -m "ci: bump version [skip ci]" || echo "No changes to commit"
+          git push

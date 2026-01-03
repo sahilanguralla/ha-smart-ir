@@ -35,3 +35,30 @@ Once added, a new fan entity (e.g., `fan.dyson_am09`) will be created. You can c
 ### Notes
 - **Syncing**: Since IR is send-only, the state in Home Assistant may get out of sync if you use the physical remote. Use the UI to "reset" the state (e.g., turn it off and on again in HA).
 - **Speed**: The integration simulates absolute speed setting by sending "Speed Up" / "Speed Down" commands multiple times from a known state.
+
+## Development
+
+### Setup
+1. Install development dependencies:
+   ```bash
+   pip install -r requirements_tests.txt
+   ```
+
+2. Setup git hooks:
+   ```bash
+   ./scripts/setup-hooks.sh
+   ```
+
+### Committing Changes
+- **Interactive Mode**: Run `git commit` (without `-m`) to launch the interactive commit wizard
+- **Manual Mode**: Run `git commit -m "feat(scope): description"` to write your own message
+- All commits are validated against [Conventional Commits](https://www.conventionalcommits.org/) format
+
+### Versioning
+- Version bumps happen automatically in Pull Requests based on commit types:
+  - `feat:` → Minor version bump (e.g., 1.0.0 → 1.1.0)
+  - `fix:` → Patch version bump (e.g., 1.0.0 → 1.0.1)
+  - `feat!:` or `BREAKING CHANGE:` → Major version bump (e.g., 1.0.0 → 2.0.0)
+- When you merge a PR with "Squash and Merge", the version bump is included in the single commit
+# Debug test
+# Test
