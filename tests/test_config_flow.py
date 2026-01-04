@@ -7,7 +7,6 @@ from homeassistant.core import HomeAssistant
 from custom_components.dyson_ir.const import (
     CONF_ACTIONS,
     CONF_BLASTER_ACTION,
-    CONF_DEVICE_ID,
     CONF_DEVICE_TYPE,
     DEVICE_TYPE_FAN,
     DOMAIN,
@@ -29,22 +28,19 @@ async def test_full_config_flow(hass: HomeAssistant):
         user_input={"name": "Test Fan", CONF_DEVICE_TYPE: DEVICE_TYPE_FAN},
     )
 
-    # Step 2a: Blaster Device
+    # Step 2: Blaster
     assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
     assert result["step_id"] == "blaster"
 
+    action_list = [
+        {
+            "service": "remote.send_command",
+            "data": {"device_id": "blaster_device", "command": "IR_CODE"},
+        }
+    ]
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
-        user_input={CONF_DEVICE_ID: "blaster_device_id"},
-    )
-
-    # Step 2b: Blaster Action
-    assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
-    assert result["step_id"] == "blaster_action"
-
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"],
-        user_input={CONF_BLASTER_ACTION: "remote.send_command"},
+        user_input={CONF_BLASTER_ACTION: action_list},
     )
 
     # Step 3: Actions List (Initially empty, want to add one)
@@ -82,8 +78,7 @@ async def test_full_config_flow(hass: HomeAssistant):
     assert result["data"] == {
         "name": "Test Fan",
         CONF_DEVICE_TYPE: DEVICE_TYPE_FAN,
-        CONF_DEVICE_ID: "blaster_device_id",
-        CONF_BLASTER_ACTION: "remote.send_command",
+        CONF_BLASTER_ACTION: action_list,
         CONF_ACTIONS: [{"name": "Power On", "ir_code": "dummy_code_1"}],
     }
     assert len(mock_setup.mock_calls) == 1
@@ -100,11 +95,7 @@ async def test_no_actions_error(hass: HomeAssistant):
     )
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
-        user_input={CONF_DEVICE_ID: "test_device"},
-    )
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"],
-        user_input={CONF_BLASTER_ACTION: "remote.send_command"},
+        user_input={CONF_BLASTER_ACTION: [{"service": "remote.send_command"}]},
     )
 
     # Try to finish without adding any actions

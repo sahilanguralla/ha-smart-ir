@@ -10,17 +10,10 @@
         }
       },
       "blaster": {
-        "title": "Select IR Blaster Device",
-        "description": "Choose the device that will be used as the IR blaster",
+        "title": "Configure Blaster",
+        "description": "Select the device and action used to send IR codes. IMPORTANT: Enter 'IR_CODE' (case-sensitive) in the field where the IR command should be injected.",
         "data": {
-          "device_id": "Device"
-        }
-      },
-      "blaster_action": {
-        "title": "Select Blaster Action",
-        "description": "Choose the service action used to send IR codes for this device",
-        "data": {
-          "blaster_action": "Action"
+          "blaster_action": "Blaster Action"
         }
       },
       "actions": {

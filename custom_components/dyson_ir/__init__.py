@@ -10,7 +10,7 @@ from .coordinator import DysonIRCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: Final = ["fan"]
+PLATFORMS: Final = ["button"]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
