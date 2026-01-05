@@ -1,6 +1,6 @@
 {
   "config": {
-    "title": "Dyson IR",
+    "title": "RewIRe",
     "step": {
       "user": {
         "title": "Device Setup",
@@ -45,7 +45,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Dyson IR Options",
+        "title": "RewIRe Options",
         "data": {
           "update_interval": "Coordinator Update Interval (seconds)"
         }

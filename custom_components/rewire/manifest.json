@@ -1,6 +1,6 @@
 {
-    "domain": "dyson_ir",
-    "name": "Dyson IR",
+    "domain": "rewire",
+    "name": "RewIRe",
     "codeowners": [
         "@sahilanguralla"
     ],

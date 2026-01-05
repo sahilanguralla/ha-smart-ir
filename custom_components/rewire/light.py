@@ -1,4 +1,4 @@
-"""Light platform for Dyson IR."""
+"""Light platform for RewIRe."""
 import logging
 from typing import Any
 
@@ -20,8 +20,8 @@ from .const import (
     DEVICE_TYPE_LIGHT,
     DOMAIN,
 )
-from .coordinator import DysonIRCoordinator
-from .entity import DysonIREntity
+from .coordinator import RewireCoordinator
+from .entity import RewireEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,21 +32,21 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up light entity."""
-    coordinator: DysonIRCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator: RewireCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     device_type = config_entry.data.get(CONF_DEVICE_TYPE)
 
     if device_type != DEVICE_TYPE_LIGHT and device_type != "light":
         return
 
-    async_add_entities([DysonIRLight(coordinator, config_entry.entry_id)])
+    async_add_entities([RewireLight(coordinator, config_entry.entry_id)])
 
 
-class DysonIRLight(DysonIREntity, LightEntity):
+class RewireLight(RewireEntity, LightEntity):
     """Light entity aggregating power and brightness."""
 
     def __init__(
         self,
-        coordinator: DysonIRCoordinator,
+        coordinator: RewireCoordinator,
         entry_id: str,
     ) -> None:
         """Initialize the light."""

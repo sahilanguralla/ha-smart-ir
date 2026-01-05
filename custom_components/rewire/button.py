@@ -1,4 +1,4 @@
-"""Button platform for Dyson IR."""
+"""Button platform for RewIRe."""
 import logging
 from typing import Any
 
@@ -16,8 +16,8 @@ from .const import (
     CONF_BLASTER_ACTION,
     DOMAIN,
 )
-from .coordinator import DysonIRCoordinator
-from .entity import DysonIREntity
+from .coordinator import RewireCoordinator
+from .entity import RewireEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,24 +27,22 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up button entities."""
-    coordinator: DysonIRCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    """Set up button entity."""
+    coordinator: RewireCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     actions = config_entry.data.get(CONF_ACTIONS, [])
 
     entities = []
     for action in actions:
-        action_type = action.get(CONF_ACTION_TYPE)
-        # Create button if type is explicitly BUTTON, or if type is missing (legacy config)
-        if action_type == ACTION_TYPE_BUTTON or action_type is None:
-            entities.append(DysonIRButton(coordinator, config_entry.entry_id, action))
+        if action.get(CONF_ACTION_TYPE) == ACTION_TYPE_BUTTON:
+            entities.append(RewireButton(coordinator, config_entry.entry_id, action))
 
     async_add_entities(entities)
 
 
-class DysonIRButton(DysonIREntity, ButtonEntity):
-    """Button entity for a specific IR action."""
+class RewireButton(RewireEntity, ButtonEntity):
+    """Button representation of a stateless button."""
 
-    def __init__(self, coordinator: DysonIRCoordinator, entry_id: str, action: dict[str, str]) -> None:
+    def __init__(self, coordinator: RewireCoordinator, entry_id: str, action: dict[str, Any]) -> None:
         """Initialize the button."""
         super().__init__(coordinator, entry_id)
         self._action_name = action[CONF_ACTION_NAME]

@@ -1,26 +1,23 @@
 """Dyson IR integration."""
 import logging
-from typing import Final
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN
-from .coordinator import DysonIRCoordinator
+from .const import DOMAIN, PLATFORMS
+from .coordinator import RewireCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: Final = ["button"]
-
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Dyson IR from a config entry."""
+    """Set up RewIRe from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
-    coordinator = DysonIRCoordinator(hass, entry)
+    coordinator = RewireCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
 
-    hass.data[DOMAIN][entry.entry_id] = coordinator
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 

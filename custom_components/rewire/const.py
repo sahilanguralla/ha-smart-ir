@@ -1,7 +1,7 @@
-"""Constants for Dyson IR."""
+"""Constants for RewIRe."""
 from typing import Final
 
-DOMAIN = "dyson_ir"
+DOMAIN = "rewire"
 
 PLATFORMS: Final[list[str]] = [
     "button",

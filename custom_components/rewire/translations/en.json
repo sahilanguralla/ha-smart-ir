@@ -40,7 +40,7 @@
                 "title": "Device Setup"
             }
         },
-        "title": "Dyson IR"
+        "title": "RewIRe"
     },
     "options": {
         "step": {
@@ -48,7 +48,7 @@
                 "data": {
                     "update_interval": "Coordinator Update Interval (seconds)"
                 },
-                "title": "Dyson IR Options"
+                "title": "RewIRe Options"
             }
         }
     }

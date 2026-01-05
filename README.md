@@ -1,40 +1,59 @@
-# Dyson IR Control for Home Assistant
+# RewIRe for Home Assistant
 
-This custom component allows you to control Dyson AM09 (and potentially AM07/AM11) fans and heaters using any IR blaster configured as a `remote` entity in Home Assistant (e.g., Broadlink, ESPHome).
+**RewIRe** is a generic Home Assistant integration that transforms any "dumb" IR-controlled device into a smart entity. It works by wrapping your existing IR blaster (like Broadlink, ESPHome, or Tuya) into a full-featured Home Assistant entity (Fan, Climate, Light, etc.) with state estimation.
+
+> **Note**: This integration was formerly known as "Dyson IR".
 
 ## Features
-- **Power Control**: Turn the device on/off.
-- **Speed Control**: Set fan speed (Low/Medium/High or percentage).
-- **Oscillation**: Toggle oscillation.
-- **State Management**: Estimates device state (speed, power, oscillation) since IR is one-way.
+
+- **Standard Entities**: Creates proper `fan`, `climate` (AC), and `light` entities.
+- **Template Configuration**: Easy setup for standard devices by asking for specific IR codes (Power, Speed, Temperature, etc.).
+- **Smart Delays**: Automatically adds delays (e.g., 300ms for AC temperature changes) to ensure commands are received reliably.
+- **State Estimation**: Remembers the state of your device (e.g., current speed or temperature) even though the IR communication is one-way.
+- **Legacy Support**: A generic "Other" mode allows you to build custom button/switch panels for non-standard devices.
 
 ## Installation
 
 ### Via HACS
-1.  Add this repository to `HACS > Integrations > 3 dots > Custom repositories`. Copy/paste the repository link and select the repository type as "Integration".
+1.  Add this repository to `HACS > Integrations > 3 dots > Custom repositories`.
     ```
     https://github.com/sahilanguralla/hacs.git
     ```
-2.  Search for "Dyson IR" and install.
+2.  Search for **RewIRe** and install.
 3.  Restart Home Assistant.
 
 ## Configuration
 
 1.  Go to **Settings > Devices & Services**.
-2.  Click **Add Integration** and search for "Dyson IR".
-3.  **Step 1**: Select your device type (AM09, AM07, AM11) and choose your IR blaster entity (e.g., `remote.broadlink_living_room`).
-4.  **Step 2**: Enter the Base64 IR codes for each command.
-    *   You can learn these codes using your IR blaster's learning mode via the `remote.learn_command` service.
-    *   The setup wizard requires codes for: Power On, Power Off, Speed Up, Speed Down, Oscillate Toggle.
-    *   (AM09 Only) Heat On/Off codes are optional but recommended.
+2.  Click **Add Integration** and search for **RewIRe**.
+3.  **Step 1**: Select your IR Blaster entity (e.g., `remote.broadlink_living_room`) and the command service (usually `remote.send_command`).
+4.  **Step 2**: Select your **Device Type**:
+
+### Fan
+-   **Required**: Power On, Power Off.
+-   **Optional**: Oscillate, Speed Increase, Speed Decrease.
+-   *Result*: A `fan` entity with speed and oscillation controls.
+
+### AC (Climate)
+-   **Required**: Power On, Power Off, Temperature Increase, Temperature Decrease.
+-   *Result*: A `climate` entity. Temperature adjustments are sent with a 300ms delay between codes to ensure reliability.
+
+### Light
+-   **Required**: Power On, Power Off.
+-   **Optional**: Brightness Increase, Brightness Decrease.
+-   *Result*: A `light` entity.
+
+### Other / Legacy
+-   Choose "Other" to manually add individual Actions (Power Button, Speed Button, etc.).
+-   This creates individual `switch`, `button`, or `number` entities for each action.
 
 ## Usage
 
-Once added, a new fan entity (e.g., `fan.dyson_am09`) will be created. You can control it via the standard Fan card in Lovelace.
+Once configured, your device appears as a standard Home Assistant entity. You can control it using Dashboard cards, Voice Assistants (Google/Alexa), or Automation.
 
-### Notes
-- **Syncing**: Since IR is send-only, the state in Home Assistant may get out of sync if you use the physical remote. Use the UI to "reset" the state (e.g., turn it off and on again in HA).
-- **Speed**: The integration simulates absolute speed setting by sending "Speed Up" / "Speed Down" commands multiple times from a known state.
+### Syncing State
+Since IR is one-way, Home Assistant guesses the state based on the commands it sent. If the device state gets out of sync (e.g., someone used the physical remote):
+-   Use the Home Assistant UI to toggle the device Off and On again to reset the assumed state.
 
 ## Development
 
@@ -53,12 +72,3 @@ Once added, a new fan entity (e.g., `fan.dyson_am09`) will be created. You can c
 - **Interactive Mode**: Run `git commit` (without `-m`) to launch the interactive commit wizard
 - **Manual Mode**: Run `git commit -m "feat(scope): description"` to write your own message
 - All commits are validated against [Conventional Commits](https://www.conventionalcommits.org/) format
-
-### Versioning
-- Version bumps happen automatically in Pull Requests based on commit types:
-  - `feat:` → Minor version bump (e.g., 1.0.0 → 1.1.0)
-  - `fix:` → Patch version bump (e.g., 1.0.0 → 1.0.1)
-  - `feat!:` or `BREAKING CHANGE:` → Major version bump (e.g., 1.0.0 → 2.0.0)
-- When you merge a PR with "Squash and Merge", the version bump is included in the single commit
-# Debug test
-# Test
