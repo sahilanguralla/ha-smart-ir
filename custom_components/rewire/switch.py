@@ -1,4 +1,4 @@
-"""Switch platform for Dyson IR."""
+"""Switch platform for RewIRe."""
 import logging
 from typing import Any
 
@@ -22,8 +22,8 @@ from .const import (
     DEVICE_TYPE_FAN,
     DOMAIN,
 )
-from .coordinator import DysonIRCoordinator
-from .entity import DysonIREntity
+from .coordinator import RewireCoordinator
+from .entity import RewireEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,8 +33,8 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up switch entities."""
-    coordinator: DysonIRCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    """Set up switch entity."""
+    coordinator: RewireCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     actions = config_entry.data.get(CONF_ACTIONS, [])
 
     device_type = config_entry.data.get(CONF_DEVICE_TYPE)
@@ -50,15 +50,15 @@ async def async_setup_entry(
                 handled = True
 
         if not handled and action_type in (ACTION_TYPE_POWER, ACTION_TYPE_TOGGLE):
-            entities.append(DysonIRSwitch(coordinator, config_entry.entry_id, action))
+            entities.append(RewireSwitch(coordinator, config_entry.entry_id, action))
 
     async_add_entities(entities)
 
 
-class DysonIRSwitch(DysonIREntity, SwitchEntity):
-    """Switch entity for Power or Toggle actions."""
+class RewireSwitch(RewireEntity, SwitchEntity):
+    """Switch representation of a button (or toggle)."""
 
-    def __init__(self, coordinator: DysonIRCoordinator, entry_id: str, action: dict[str, Any]) -> None:
+    def __init__(self, coordinator: RewireCoordinator, entry_id: str, action: dict[str, Any]) -> None:
         """Initialize the switch."""
         super().__init__(coordinator, entry_id)
         self._action = action

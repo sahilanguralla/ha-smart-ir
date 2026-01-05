@@ -10,20 +10,18 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 _LOGGER = logging.getLogger(__name__)
 
 
-class DysonIRCoordinator(DataUpdateCoordinator):
-    """Data coordinator for Dyson IR devices."""
+class RewireCoordinator(DataUpdateCoordinator):
+    """Class to manage fetching data from the API."""
 
     def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
-        """Initialize coordinator."""
+        """Initialize."""
+        self.config_entry = config_entry
         super().__init__(
             hass,
             _LOGGER,
-            name="Dyson IR",
-            update_interval=timedelta(
-                seconds=config_entry.options.get("update_interval", 300)
-            ),
+            name="RewIRe",
+            update_interval=timedelta(seconds=config_entry.options.get("update_interval", 300)),
         )
-        self.config_entry = config_entry
         self._device_state: Dict[str, Any] = {
             "power": False,
             "speed": 0,
@@ -37,7 +35,7 @@ class DysonIRCoordinator(DataUpdateCoordinator):
             # Coordinator maintains local state since IR is fire-and-forget
             return self._device_state
         except Exception as err:
-            raise UpdateFailed(f"Error updating Dyson IR: {err}") from err
+            raise UpdateFailed(f"Error updating RewIRe: {err}") from err
 
     def set_device_state(self, state: Dict[str, Any]) -> None:
         """Update internal device state."""

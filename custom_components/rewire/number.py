@@ -1,4 +1,4 @@
-"""Number platform for Dyson IR."""
+"""Number platform for RewIRe."""
 import logging
 from typing import Any
 
@@ -24,8 +24,8 @@ from .const import (
     DEVICE_TYPE_FAN,
     DOMAIN,
 )
-from .coordinator import DysonIRCoordinator
-from .entity import DysonIREntity
+from .coordinator import RewireCoordinator
+from .entity import RewireEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,8 +35,8 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up number entities."""
-    coordinator: DysonIRCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    """Set up number entity."""
+    coordinator: RewireCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     actions = config_entry.data.get(CONF_ACTIONS, [])
 
     device_type = config_entry.data.get(CONF_DEVICE_TYPE)
@@ -55,15 +55,15 @@ async def async_setup_entry(
                 handled = True
 
             if not handled:
-                entities.append(DysonIRNumber(coordinator, config_entry.entry_id, action))
+                entities.append(RewireNumber(coordinator, config_entry.entry_id, action))
 
     async_add_entities(entities)
 
 
-class DysonIRNumber(DysonIREntity, NumberEntity, RestoreEntity):
-    """Number entity for Inc/Dec actions."""
+class RewireNumber(RewireEntity, NumberEntity, RestoreEntity):
+    """Number representation of inc/dec buttons."""
 
-    def __init__(self, coordinator: DysonIRCoordinator, entry_id: str, action: dict[str, Any]) -> None:
+    def __init__(self, coordinator: RewireCoordinator, entry_id: str, action: dict[str, Any]) -> None:
         """Initialize the number."""
         super().__init__(coordinator, entry_id)
         self._action = action

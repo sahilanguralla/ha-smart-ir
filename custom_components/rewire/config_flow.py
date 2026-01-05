@@ -1,4 +1,4 @@
-"""Config flow for Dyson IR."""
+"""Config flow for RewIRe."""
 import logging
 from typing import Any, Dict, Optional
 
@@ -45,8 +45,8 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-class DysonIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle config flow for Dyson IR."""
+class RewireConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle config flow for RewIRe."""
 
     VERSION = 2
 
@@ -328,11 +328,11 @@ class DysonIRConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry: config_entries.ConfigEntry):
         """Get options flow."""
-        return DysonIROptionsFlow()
+        return RewireOptionsFlow()
 
 
-class DysonIROptionsFlow(config_entries.OptionsFlow):
-    """Handle options flow for Dyson IR."""
+class RewireOptionsFlow(config_entries.OptionsFlow):
+    """Handle options flow for RewIRe."""
 
     async def async_step_init(self, user_input: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Manage options."""
