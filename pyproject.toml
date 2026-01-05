@@ -1,6 +1,6 @@
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.3.6"
+version = "0.3.7"
 version_files = [
     "custom_components/dyson_ir/manifest.json:version"
 ]
@@ -10,7 +10,7 @@ scopes = [
 tag_format = "$version"
 
 [tool.ruff]
-line-length = 88
+line-length = 120
 target-version = "py311"
 
 [tool.ruff.lint]
