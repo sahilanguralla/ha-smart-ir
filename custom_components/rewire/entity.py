@@ -19,7 +19,7 @@ class RewireEntity(CoordinatorEntity[RewireCoordinator]):
     def device_info(self) -> DeviceInfo:
         """Return device info."""
         return DeviceInfo(
-            identifiers={(DOMAIN, self.entry_id)},
+            identifiers={(DOMAIN, self._entry_id)},
             name=self.coordinator.config_entry.data.get("name", "IR Device"),
             manufacturer="IR Remote Control",
             model=self.coordinator.config_entry.data.get("device_type", "Generic"),
