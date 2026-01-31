@@ -164,7 +164,9 @@
     "error": {
       "invalid_ir_code": "Invalid IR code format",
       "no_actions": "At least one action is required",
-      "power_action_exists": "Only one Power action is allowed per device"
+      "power_action_exists": "Only one Power action is allowed per device",
+      "ac_requires_temp": "AC devices must have a Temperature action configured",
+      "ac_requires_power": "AC devices must have a Power or Mode action to turn on"
     },
     "abort": {
       "already_configured": "Device is already configured"
