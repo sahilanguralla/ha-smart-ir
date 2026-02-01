@@ -125,6 +125,20 @@ class RewireFan(RewireEntity, FanEntity):
 
         self._blaster_actions = data.get(CONF_BLASTER_ACTION, [])
 
+        # Apply initial state if configured
+        initial_state = data.get("initial_state", {})
+        if initial_state:
+            if "power_state" in initial_state and initial_state["power_state"]:
+                self._attr_is_on = True
+
+            if "current_speed" in initial_state:
+                # Map numeric speed to percentage
+                speed_val = initial_state["current_speed"]
+                self._attr_percentage = int(((speed_val - self._min_speed) / (self._max_speed - self._min_speed)) * 100)
+
+            if "oscillating" in initial_state:
+                self._attr_oscillating = initial_state["oscillating"]
+
     async def _send_code(self, code: str, repeats: int = 1, delay: float = 0.0) -> None:
         """Helper to send the IR code."""
         if not self._blaster_actions or not code:
