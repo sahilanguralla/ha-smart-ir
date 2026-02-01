@@ -29,6 +29,7 @@ from .const import (
     CONF_BRIGHTNESS_DEC_CODE,
     CONF_BRIGHTNESS_INC_CODE,
     CONF_DEVICE_TYPE,
+    CONF_INITIAL_STATE,
     CONF_MAX_SPEED,
     CONF_MAX_TEMP,
     CONF_MAX_VALUE,
@@ -406,7 +407,7 @@ class RewireConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 if not errors:
                     self.config_data[CONF_ACTIONS] = self.actions
-                    return self.async_create_entry(title=self.config_data["name"], data=self.config_data)
+                    return await self.async_step_initial_state()
 
         actions_str = (
             "\n".join([f"- {a[CONF_ACTION_NAME]}" for a in self.actions]) if self.actions else "No actions added yet."
@@ -515,6 +516,129 @@ class RewireConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="configure_action",
             data_schema=vol.Schema(data_schema),
             description_placeholders={"type": self.current_action_type},
+        )
+
+    async def async_step_initial_state(self, user_input: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Configure initial state of the device."""
+        if user_input is not None:
+            self.config_data[CONF_INITIAL_STATE] = user_input
+            return self.async_create_entry(title=self.config_data["name"], data=self.config_data)
+
+        # Build schema dynamically based on configured actions
+        schema_dict = {}
+        device_type = self.config_data.get(CONF_DEVICE_TYPE)
+
+        # Check what actions are configured
+        has_power = False
+        has_temp = False
+        has_speed = False
+        has_brightness = False
+        has_oscillate = False
+
+        min_temp = 16
+        max_temp = 30
+        temp_step = 1
+        min_speed = 1
+        max_speed = 10
+        speed_step = 1
+
+        mode_options = []
+        fan_mode_options = []
+
+        for action in self.actions:
+            atype = action.get(CONF_ACTION_TYPE)
+            if atype == ACTION_TYPE_POWER:
+                has_power = True
+            elif atype == ACTION_TYPE_TEMP:
+                has_temp = True
+                min_temp = action.get(CONF_MIN_TEMP, min_temp)
+                max_temp = action.get(CONF_MAX_TEMP, max_temp)
+                temp_step = action.get(CONF_TEMP_STEP, temp_step)
+            elif atype == ACTION_TYPE_SPEED:
+                has_speed = True
+                min_speed = action.get(CONF_MIN_SPEED, min_speed)
+                max_speed = action.get(CONF_MAX_SPEED, max_speed)
+                speed_step = action.get(CONF_SPEED_STEP, speed_step)
+            elif atype == ACTION_TYPE_MODE:
+                mode_name = action.get("mode_name")
+                if mode_name:
+                    mode_options.append(mode_name)
+            elif atype == ACTION_TYPE_BRIGHTNESS:
+                has_brightness = True
+            elif atype == ACTION_TYPE_OSCILLATE:
+                has_oscillate = True
+
+        # Add power state for devices with power control
+        if has_power:
+            schema_dict[vol.Optional("power_state", default=False)] = bool
+
+        # Add temperature for AC devices
+        if has_temp:
+            schema_dict[vol.Optional("current_temp", default=min_temp)] = selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    mode=selector.NumberSelectorMode.BOX,
+                    min=min_temp,
+                    max=max_temp,
+                    step=temp_step,
+                    unit_of_measurement=self.hass.config.units.temperature_unit,
+                )
+            )
+
+        # Add HVAC mode for AC devices
+        if device_type == DEVICE_TYPE_AC:
+            hvac_modes = ["off"]
+            if mode_options:
+                hvac_modes.extend(mode_options)
+            else:
+                hvac_modes.extend(["cool", "heat"])
+
+            schema_dict[vol.Optional("current_hvac_mode", default="off")] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=hvac_modes,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            )
+
+        # Add fan speed for AC devices with speed control
+        if device_type == DEVICE_TYPE_AC and has_speed:
+            steps = int((max_speed - min_speed) / speed_step) + 1
+            fan_mode_options = [str(i) for i in range(1, steps + 1)]
+            schema_dict[vol.Optional("current_fan_mode", default="1")] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=fan_mode_options,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            )
+
+        # Add speed for Fan devices
+        if device_type == DEVICE_TYPE_FAN and has_speed:
+            schema_dict[vol.Optional("current_speed", default=min_speed)] = selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    mode=selector.NumberSelectorMode.BOX,
+                    min=min_speed,
+                    max=max_speed,
+                    step=speed_step,
+                )
+            )
+
+        # Add brightness for Light devices
+        if has_brightness:
+            schema_dict[vol.Optional("current_brightness", default=100)] = selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    mode=selector.NumberSelectorMode.BOX,
+                    min=0,
+                    max=100,
+                    step=1,
+                )
+            )
+
+        # Add oscillation state
+        if has_oscillate:
+            schema_dict[vol.Optional("oscillating", default=False)] = bool
+
+        return self.async_show_form(
+            step_id="initial_state",
+            data_schema=vol.Schema(schema_dict),
         )
 
     @staticmethod

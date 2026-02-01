@@ -159,6 +159,19 @@
           "brightness_inc_code": "Increase Code",
           "brightness_dec_code": "Decrease Code"
         }
+      },
+      "initial_state": {
+        "title": "Set Initial State",
+        "description": "Configure the current state of your device so Home Assistant displays it correctly.",
+        "data": {
+          "power_state": "Is the device currently on?",
+          "current_temp": "Current Temperature",
+          "current_speed": "Current Fan Speed",
+          "current_hvac_mode": "Current Mode",
+          "current_fan_mode": "Current Fan Speed Level",
+          "current_brightness": "Current Brightness (0-100)",
+          "oscillating": "Currently Oscillating?"
+        }
       }
     },
     "error": {

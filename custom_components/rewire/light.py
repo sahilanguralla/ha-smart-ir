@@ -101,6 +101,17 @@ class RewireLight(RewireEntity, LightEntity):
 
         self._blaster_actions = data.get(CONF_BLASTER_ACTION, [])
 
+        # Apply initial state if configured
+        initial_state = data.get("initial_state", {})
+        if initial_state:
+            if "power_state" in initial_state and initial_state["power_state"]:
+                self._attr_is_on = True
+
+            if "current_brightness" in initial_state:
+                # Map 0-100 to 0-255
+                brightness_pct = initial_state["current_brightness"]
+                self._attr_brightness = int((brightness_pct / 100) * 255)
+
     async def _send_code(self, code: str, repeats: int = 1) -> None:
         """Helper to send the IR code."""
         if not self._blaster_actions or not code:

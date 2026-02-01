@@ -188,6 +188,34 @@ class RewireClimate(RewireEntity, ClimateEntity):
 
         self._blaster_actions = data.get(CONF_BLASTER_ACTION, [])
 
+        # Apply initial state if configured
+        initial_state = data.get("initial_state", {})
+        if initial_state:
+            if "current_hvac_mode" in initial_state:
+                mode_str = initial_state["current_hvac_mode"]
+                # Map string to HVACMode
+                mode_map = {
+                    "off": HVACMode.OFF,
+                    "cool": HVACMode.COOL,
+                    "heat": HVACMode.HEAT,
+                    "auto": HVACMode.AUTO,
+                    "dry": HVACMode.DRY,
+                    "fan_only": HVACMode.FAN_ONLY,
+                }
+                self._attr_hvac_mode = mode_map.get(mode_str, HVACMode.OFF)
+
+            if "current_temp" in initial_state:
+                self._attr_target_temperature = initial_state["current_temp"]
+
+            if "current_fan_mode" in initial_state:
+                self._attr_fan_mode = initial_state["current_fan_mode"]
+                # Update internal index
+                if hasattr(self, "_attr_fan_modes") and initial_state["current_fan_mode"] in self._attr_fan_modes:
+                    self._curr_speed_idx = self._attr_fan_modes.index(initial_state["current_fan_mode"])
+
+            if "oscillating" in initial_state:
+                self._attr_swing_mode = "on" if initial_state["oscillating"] else "off"
+
     async def _send_code(self, code: str, repeats: int = 1, delay: float = 0.0) -> None:
         """Helper to send the IR code."""
         if not self._blaster_actions or not code:
